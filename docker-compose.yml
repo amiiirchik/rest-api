@@ -1,0 +1,80 @@
+version: '3.9'
+volumes:
+  mongo_storage_config:
+    driver: local
+    name: mongo_config_storage
+    driver_opts:
+      type: none
+      o: bind
+      device: ${VOLUME_MONGO_CONFIG_SOURCE}
+  mongo_storage_data:
+    driver: local
+    name: mongo_data_storage
+    driver_opts:
+      type: none
+      o: bind
+      device: ${VOLUME_MONGO_DATA_SOURCE}
+  mongo_admin_storage_data:
+    driver: local
+    name: mongo_admin_data_storage
+    driver_opts:
+      type: none
+      o: bind
+      device: ${VOLUME_MONGO_ADMIN_DATA_SOURCE}
+services:
+  users:
+    extends:
+      file: ${USERS_FILE}
+      service: ${USERS_CN}
+    depends_on:
+      - mongo
+  mongo:
+    container_name: mongo
+    image: mongo
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME:${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD:${MONGO_PASS}
+    volumes:
+      - type: volume
+        source: mongo_storage_config
+        target: ${VOLUME_MONGO_CONFIG_TARGET}
+      - type: volume
+        source: mongo_storage_data
+        target: ${VOLUME_MONGO_DATA_TARGET}
+    profiles:
+      - db
+      - services
+      - all
+      - dev
+    expose:
+      - ${MONGO_PORT}
+  mongo_admin:
+    container_name: adminer
+    image: mongo-express
+    environment:
+      - ME_CONFIG_BASICAUTH_USERNAME:${MONGO_ADMIN_WEB_USER}
+      - ME_CONFIG_BASICAUTH_PASSWORD:${MONGO_ADMIN_WEB_PASS}
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN:${MONGO_ADMIN_IS_ENABLED_ADMIN}
+      - ME_CONFIG_MONGODB_ADMINUSERNAME:${MONGO_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD:${MONGO_PASS}
+      - ME_CONFIG_MONGODB_PORT:${MONGO_ADMIN_PORT}
+      - ME_CONFIG_MONGODB_SERVER:${MONGO_ADMIN_SERVER}
+      - ME_CONFIG_OPTIONS_EDITORTHEME:${MONGO_ADMIN_THEME}
+      - ME_CONFIG_REQUEST_SIZE:${MONGO_REQUEST_SIZE}
+      - ME_CONFIG_SITE_BASEURL:${MONGO_ADMIN_BASE_URL}
+      - ME_CONFIG_SITE_COOKIESECRET:${MONGO_ADMIN_COOKIE_SECRET}
+      - ME_CONFIG_SITE_SESSIONSECRET:${MONGO_ADMIN_SESSION_SECRET}
+      - ME_CONFIG_SITE_SSL_ENABLED:${MONGO_ADMIN_IS_ENABLED_SSL}
+      - ME_CONFIG_SITE_SSL_CRT_PATH:${MONGO_ADMIN_SSL_CRT}
+      - ME_CONFIG_SITE_SSL_KEY_PATH:${MONGO_ADMIN_SSL_KEY}
+    volumes:
+      - type: volume
+        source: mongo_admin_storage_data
+        target: ${VOLUME_MONGO_ADMIN_DATA_TARGET}
+    ports:
+      - target: ${MONGO_ADMIN_INSIDE_PORT}
+        published: ${MONGO_ADMIN_OUTSIDE_PORT}
+        protocol: tcp
+        mode: host
+    depends_on:
+      - mongo

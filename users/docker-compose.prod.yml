@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+  users:
+    container_name: ${USERS_CN}
+    image: ${USERS_IMAGE}
+    working_dir: /var/www/html
+    build:
+      context: ./
+      dockerfile: ../production.Dockerfile
+    profiles:
+      - services
+      - all
+      - dev
+    environment:
+      - NODE_MODE
+      - PORT=${USERS_INSIDE_PORT}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+    expose:
+      - ${USERS_INSIDE_PORT}/tcp
+    restart: on-failure
+    command: ${USERS_RUN_COMMAND}
