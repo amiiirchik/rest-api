@@ -1,0 +1,17 @@
+version: '3.9'
+services:
+  posts_dev:
+    extends:
+      file: ./docker-compose.prod.yml
+      service: posts
+    build:
+      context: ./
+      dockerfile: ../development.Dockerfile
+    ports:
+      - target: ${POSTS_INSIDE_PORT}
+        published: ${POSTS_INSIDE_PORT}
+        protocol: tcp
+        mode: host
+    volumes:
+      - ./:/var/www/html
+    command: ${POSTS_RUN_COMMAND}

@@ -7,7 +7,7 @@
 // });
 
 const { mongoose, Schema } = require('mongoose')
-mongoose.connect(`mongodb+srv://Amir:amirka2004@cluster0.frlws7x.mongodb.net/?retryWrites=true&w=majority`)
+mongoose.connect(`mongodb://${process.env.MONGO_HOST}:${process.env.MONGO_PORT}/users`)
 
 const UserSchema = new Schema(
   {

@@ -28,6 +28,12 @@ services:
       service: ${USERS_CN}
     depends_on:
       - mongo
+  posts:
+    extends:
+      file: ${POSTS_FILE}
+      service: ${POSTS_CN}
+    depends_on:
+      - mongo
   mongo:
     container_name: mongo
     image: mongo

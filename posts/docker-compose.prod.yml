@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+  posts:
+    container_name: ${POSTS_CN}
+    image: ${POSTS_IMAGE}
+    working_dir: /var/www/html
+    build:
+      context: ./
+      dockerfile: ../production.Dockerfile
+    profiles:
+      - services
+      - all
+      - dev
+    environment:
+      - NODE_MODE
+      - PORT=${POSTS_INSIDE_PORT}
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+    expose:
+      - ${POSTS_INSIDE_PORT}/tcp
+    restart: on-failure
+    command: ${POSTS_RUN_COMMAND}
